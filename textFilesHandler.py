@@ -30,15 +30,16 @@ def readSentencesFromInputFile():
     # Open input file.
     with open(INPUT_FULL_PATH, encoding="utf-8") as input_file:
         lines = list(filter(None, (line.rstrip() for line in input_file)))
-    # Assert proper format (sentence, formatted sentence, url link or .)
-    assert (len(lines) % 3 == 0)
+    # Assert proper format (formatted sentence, url link or .)
+    print(lines)
+    assert (len(lines) % 2 == 0)
     # Generate list of sentence entries.
     sentence_entries = []
-    for i in range(0, len(lines), 3):
+    for i in range(0, len(lines), 2):
         # If image url line is "." (means not provided), change "." to empty string.
-        if lines[i+2] == ".":
-            lines[i+2] = ""
-        sentence_entries.append([lines[i], lines[i+1], lines[i+2]])
+        if lines[i+1] == ".":
+            lines[i+1] = ""
+        sentence_entries.append([lines[i], lines[i+1]])
 
     return sentence_entries
 

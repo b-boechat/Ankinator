@@ -61,9 +61,13 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
             formatted_sentence = re.sub(number_tag, "", formatted_sentence)
     return fields_with_article
 
+def getRawSentenceFromFormatted(formatted_sentence):
+    return re.sub(r"(\[\d?)|((\|[^\]]*)?\])", "", formatted_sentence)
+
 def processSentenceEntry(sentence_entry):
     # Get elements from sentence entry.
-    sentence, formatted_sentence, image_url = sentence_entry[0], sentence_entry[1], sentence_entry[2]
+    formatted_sentence, image_url = sentence_entry[0], sentence_entry[1]
+    sentence = getRawSentenceFromFormatted(formatted_sentence)
     # Process the request and get image entry, if a URL was provided.
     image_field = processImageRequest(image_url, sentence)
     # Generate fields and write them to output file.
