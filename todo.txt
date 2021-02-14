@@ -1,0 +1,7 @@
+- Criar meu dicionário de palavras aprendidas (ou pelo menos com flashcards criadas), e fazer um programa para ler frases e identificar quais palavras são conhecidas e quais devem ser estudadas.
+
+- Compilar o programa para um executável.
+
+- Possibilitar a escolha de parâmetros como arquivo de origem e destino, pasta de backup etc.
+
+- Fazer um plugin do Anki que roda o programa, importa o flashcards e adiciona as gravações TTS.
