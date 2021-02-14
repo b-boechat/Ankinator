@@ -51,7 +51,7 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
                 # Matches optional space character after the article, to allow both "l'xxx" and "la xxx" constructions to be formatted properly in the deleted sentence.
                 re.sub(word, "__", re.sub("{} ?".format(article), "__ ", sentence)), # Deleted sentence
                 re.sub(word, r'<span class="targetInSentence">{}</span>'.format(word),
-                       re.sub("{} ?".format(article), r'''<span class="targetInSentence">{}</span>'''.format(article), sentence)),  # Sentence with HTML
+                       re.sub("{} ?".format(article), r'''<span class="targetInSentence">{}</span> '''.format(article), sentence)),  # Sentence with HTML
                 dictionary_form.lower(), # Dictionary form
                 getIPATranscription(dictionary_form.lower()), #Dictionary form IPA
                 image_field, # Image
@@ -62,7 +62,7 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
     return fields_with_article
 
 def getRawSentenceFromFormatted(formatted_sentence):
-    return re.sub(r"(\[\d?)|((\|[^\]]*)?\])", "", formatted_sentence)
+    return re.sub(r"(\[\d?)|((\|[^\]]*)?\])|(<\d?)|>", "", formatted_sentence)
 
 def processSentenceEntry(sentence_entry):
     # Get elements from sentence entry.

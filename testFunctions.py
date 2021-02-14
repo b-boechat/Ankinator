@@ -5,7 +5,7 @@ from definitions import *
 from utilities import *
 from textFilesHandler import *
 
-formatted_sentence = r"Enfin, j’espérais, pour une fois, ne pas m’[attirer] d’ennuis"
+formatted_sentence = r"Je sais: ça [ressembler] [énormément] à <1un> [1supplice]."
 
 print(getRawSentenceFromFormatted(formatted_sentence))
 

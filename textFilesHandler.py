@@ -31,7 +31,6 @@ def readSentencesFromInputFile():
     with open(INPUT_FULL_PATH, encoding="utf-8") as input_file:
         lines = list(filter(None, (line.rstrip() for line in input_file)))
     # Assert proper format (formatted sentence, url link or .)
-    print(lines)
     assert (len(lines) % 2 == 0)
     # Generate list of sentence entries.
     sentence_entries = []
