@@ -1,7 +1,8 @@
 import re
 from imageHandler import processImageRequest
-from textFilesHandler import writeCardsToOutputFile
+from ioFilesHandler import writeCardsToOutputFile
 from getIPATranscription import getIPATranscription
+from dictionaryHandler import addSortedToFlashcardDictionary
 
 def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
 
@@ -23,6 +24,9 @@ def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
                         image_field,  # Image
                         ""  # Recording
                         ] for matches in matches_no_article]
+    # Adds matches to dictionary.
+    for matches in matches_no_article:
+        addSortedToFlashcardDictionary(matches[0].lower())
 
     return fields_no_article
 
@@ -59,6 +63,8 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
             ])
             # Consumes tag from formatted string, so the next iteration won't find the same match.
             formatted_sentence = re.sub(number_tag, "", formatted_sentence)
+            # Adds word to dictionary.
+            addSortedToFlashcardDictionary(word.lower())
     return fields_with_article
 
 def getRawSentenceFromFormatted(formatted_sentence):

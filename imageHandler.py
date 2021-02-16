@@ -2,7 +2,7 @@ import urllib.request
 import re
 from PIL import Image
 from math import floor
-from definitions import MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME, STAGING_PATH, IMAGE_PATH, IMAGE_FILENAME_PREFIX, IMAGE_HEIGHT
+from definitions import MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME, STAGING_PATH, IMAGE_PATH, IMAGE_FILENAME_PREFIX, IMAGE_HEIGHT, DONT_MOVE_IMAGES
 from utilities import generateFilename
 import os
 
@@ -53,8 +53,9 @@ def processImageRequest(image_url, sentence):
     filename = generateFilename("{}{}".format(IMAGE_FILENAME_PREFIX, re.sub(r'\W+', '', sentence)[:num_beginning_characters]))
     # Download image
     filename_with_extension = downloadImageFromURL(image_url, STAGING_PATH, filename)
-    # Move image to Anki medias folder.
-    moveImage(filename_with_extension, IMAGE_PATH, STAGING_PATH)
+    if not DONT_MOVE_IMAGES:
+        # Move image to Anki medias folder.
+        moveImage(filename_with_extension, IMAGE_PATH, STAGING_PATH)
     # Returns image field entry.
     return r'''<img src="{}">'''.format(filename_with_extension)
 

@@ -18,12 +18,11 @@ def readCardsFromTSV(full_filepath):
     # This function is just for debugging purposes.
 
     # Opens input file.
-    input_file = open(full_filepath, newline="")
+    with open(full_filepath, newline="") as input_file:
     # Reads tsv content to reader object.
-    card_list_obj = csv.reader(input_file, delimiter="\t")
-    # Generates list of cards.
-    card_list = [row for row in card_list_obj]
-    input_file.close()
+        card_list_obj = csv.reader(input_file, delimiter="\t")
+        # Generates list of cards.
+        card_list = [row for row in card_list_obj]
     return card_list
 
 def readSentencesFromInputFile():
