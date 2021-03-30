@@ -5,7 +5,7 @@ import re
 from bisect import bisect_left
 
 def addSortedToFlashcardDictionary(words, presort_dictionary=True):
-    """ Merge list of words with flashcard dictionary file while keeping it sorted and with no repeated words. If presort_dictionary is set to False, requires and assumes that flashcard dictionary file is already sorted, which is faster.
+    """ Merge list of words with flashcard dictionary file while keeping it sorted and with no repeated words. If presort_dictionary is set to False, requires and assumes that flashcard dictionary file is already sorted, and operates faster.
     """
     # Open flashcard dictionary file and save its contents to flashcard_dictionary_list.
     with open(FLASHCARD_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8") as input_file:
@@ -16,7 +16,8 @@ def addSortedToFlashcardDictionary(words, presort_dictionary=True):
         if presort_dictionary:
             flashcard_dictionary_list.sort()
 
-    # Sort list of words to be merged.
+    # Remove duplicates and sort list of words to be merged.
+    words = list(dict.fromkeys(words))
     words.sort()
     insertions = []
     # Loop through list of words.
@@ -24,7 +25,7 @@ def addSortedToFlashcardDictionary(words, presort_dictionary=True):
         # Getsthe leftmost insertion position for word in flashcard_dictionary_list.
         insertion_point = bisect_left(flashcard_dictionary_list, word)
         # If word is already in dictionary, ignore it.
-        if flashcard_dictionary_list[insertion_point] == word:
+        if insertion_point != len(flashcard_dictionary_list) and flashcard_dictionary_list[insertion_point] == word:
             continue
         # Otherwise, append tuple with word and its insertion point to the list of insertions. This insertion point is related to the original flashcard_dictionary_list, and purposefully ignores insertions from previous iterations.
         insertions.append((word, insertion_point))
