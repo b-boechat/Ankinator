@@ -4,6 +4,9 @@ from ioFilesHandler import writeCardsToOutputFile
 from getIPATranscription import getIPATranscription
 from dictionaryHandler import addSortedToFlashcardDictionary
 
+# Global variable that store list of words added, so that it can be used by addSortedToFlashcardDictionary() from dictionaryHandler.py
+words_added = []
+
 def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
 
     # Find patterns for words with no article, optionally containing a dictionary form.
@@ -24,9 +27,10 @@ def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
                         image_field,  # Image
                         ""  # Recording
                         ] for matches in matches_no_article]
-    # Adds matches to dictionary.
+
+    # Adds matches to list of words added.
     for matches in matches_no_article:
-        addSortedToFlashcardDictionary(matches[0].lower())
+        words_added.append(matches[0].lower())
 
     return fields_no_article
 
@@ -63,8 +67,8 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
             ])
             # Consumes tag from formatted string, so the next iteration won't find the same match.
             formatted_sentence = re.sub(number_tag, "", formatted_sentence)
-            # Adds word to dictionary.
-            addSortedToFlashcardDictionary(word.lower())
+            # Adds word to list of words added.
+            words_added.append(word.lower())
     return fields_with_article
 
 def getRawSentenceFromFormatted(formatted_sentence):
@@ -79,3 +83,9 @@ def processSentenceEntry(sentence_entry):
     # Generate fields and write them to output file.
     writeCardsToOutputFile(generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field))
     writeCardsToOutputFile(generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field))
+
+def processAllEntries(sentence_entries):
+    for sentence_entry in sentence_entries:
+        processSentenceEntry(sentence_entry)
+    # Return list of added words (global variable from this file)
+    return words_added
