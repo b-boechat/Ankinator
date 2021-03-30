@@ -2,3 +2,6 @@ input*
 output*
 _*
 __pycache__/
+dict_input*
+backup/
+todo
