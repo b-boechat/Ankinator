@@ -1,11 +1,8 @@
 import re
 from imageHandler import processImageRequest
 from ioFilesHandler import writeCardsToOutputFile
-from getIPATranscription import getIPATranscription
+from addIPATranscription import addIPATranscription
 from dictionaryHandler import addSortedToFlashcardDictionary
-
-# Global variable that store list of words added, so that it can be used by addSortedToFlashcardDictionary() from dictionaryHandler.py
-words_added = []
 
 def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
 
@@ -18,19 +15,15 @@ def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
     #Generate fields for no-article matches.
     fields_no_article = [[
                         matches[0].lower(),  # Target, with lowercase characters.
-                        getIPATranscription(matches[0].lower()),  # IPA
+                        "",  # IPA transcription, will be added by addIPATranscription afterwards.
                         sentence,  # Sentence
                         re.sub(matches[0], "__", sentence),  # Deleted sentence
                         re.sub(matches[0], r'<span class="targetInSentence">{}</span>'.format(matches[0]), sentence),  # Sentence with HTML
                         matches[1],  # Dictionary form
-                        getIPATranscription(matches[1].lower()), # Dictionary form IPA
+                        "", # Dictionary form IPA transcription, will be added by addIPATranscription afterwards.
                         image_field,  # Image
                         ""  # Recording
                         ] for matches in matches_no_article]
-
-    # Adds matches to list of words added.
-    for matches in matches_no_article:
-        words_added.append(matches[0].lower())
 
     return fields_no_article
 
@@ -54,38 +47,38 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
             dictionary_form = matches_obj.group(4) or "" # If optional dictionary form isn't provided, defaults to an empty string.
             fields_with_article.append([
                 word.lower(),  # Target
-                getIPATranscription(word.lower()),  # IPA
+                "",  # IPA transcription, will be added by addIPATranscription afterwards.
                 sentence, # Sentence
                 # Matches optional space character after the article, to allow both "l'xxx" and "la xxx" constructions to be formatted properly in the deleted sentence.
                 re.sub(word, "__", re.sub("{} ?".format(article), "__ ", sentence)), # Deleted sentence
-                re.sub(word, r'<span class="targetInSentence">{}</span>'.format(word),
-                       re.sub("{} ?".format(article), r'''<span class="targetInSentence">{}</span> '''.format(article), sentence)),  # Sentence with HTML
+                re.sub(word, r'<span class="targetInSentence">{}</span>'.format(word), re.sub(
+                    "{} ?".format(article), r'''<span class="targetInSentence">{}</span> '''.format(article), sentence)),  # Sentence with HTML
                 dictionary_form.lower(), # Dictionary form
-                getIPATranscription(dictionary_form.lower()), #Dictionary form IPA
+                "", # Dictionary form IPA transcription, will be added by addIPATranscription afterwards.
                 image_field, # Image
                 "" # Recording
             ])
             # Consumes tag from formatted string, so the next iteration won't find the same match.
             formatted_sentence = re.sub(number_tag, "", formatted_sentence)
-            # Adds word to list of words added.
-            words_added.append(word.lower())
     return fields_with_article
 
 def getRawSentenceFromFormatted(formatted_sentence):
     return re.sub(r"(\[\d?)|((\|[^\]]*)?\])|(<\d?)|>", "", formatted_sentence)
 
-def processSentenceEntry(sentence_entry):
-    # Get elements from sentence entry.
-    formatted_sentence, image_url = sentence_entry[0], sentence_entry[1]
-    sentence = getRawSentenceFromFormatted(formatted_sentence)
-    # Process the request and get image entry, if a URL was provided.
-    image_field = processImageRequest(image_url, sentence)
-    # Generate fields and write them to output file.
-    writeCardsToOutputFile(generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field))
-    writeCardsToOutputFile(generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field))
-
-def processAllEntries(sentence_entries):
+def processAllEntries(sentence_entries, presort_dictionary):
+    anki_cards_list = []
     for sentence_entry in sentence_entries:
-        processSentenceEntry(sentence_entry)
-    # Return list of added words (global variable from this file)
-    return words_added
+        # Get elements from sentence entry.
+        formatted_sentence, image_url = sentence_entry[0], sentence_entry[1]
+        sentence = getRawSentenceFromFormatted(formatted_sentence)
+        # Process the request and get image entry, if a URL was provided.
+        image_field = processImageRequest(image_url, sentence)
+        # Generate fields and write them to output file.
+        anki_cards_list.extend(generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field))
+        anki_cards_list.extend(generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field))
+    # Add IPA transcription to cards.
+    addIPATranscription(anki_cards_list)
+    # Writes cards to output file, as tsv.
+    writeCardsToOutputFile(anki_cards_list)
+    # Add words to flashcard dictionary. First paramater passed is a list of all target words and their dictionary forms, if provided.
+    addSortedToFlashcardDictionary([card[0] for card in anki_cards_list] + [card[5] for card in anki_cards_list if card[5]], presort_dictionary)
