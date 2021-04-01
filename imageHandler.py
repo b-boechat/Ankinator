@@ -1,10 +1,12 @@
 import urllib.request
+from urllib.error import HTTPError
 import re
 from PIL import Image
 from math import floor
 from definitions import MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME, STAGING_PATH, IMAGE_PATH, IMAGE_FILENAME_PREFIX, IMAGE_HEIGHT, DONT_MOVE_IMAGES
 from utilities import generateFilename
 import os
+import colorama
 
 
 def downloadImageFromURL(url, path, filename):
@@ -20,6 +22,7 @@ def downloadImageFromURL(url, path, filename):
     # Generate full staging path.
     full_path = r"{}{}".format(path, filename_with_extension)
     # Download image from URL, saving on staging path.
+
     urllib.request.urlretrieve(url, full_path)
 
     image = Image.open(full_path)
@@ -51,8 +54,16 @@ def processImageRequest(image_url, sentence):
     num_beginning_characters = min(MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME, len(raw_sentence))
     # Generate image filename.
     filename = generateFilename("{}{}".format(IMAGE_FILENAME_PREFIX, re.sub(r'\W+', '', sentence)[:num_beginning_characters]))
-    # Download image
-    filename_with_extension = downloadImageFromURL(image_url, STAGING_PATH, filename)
+    try:
+        # Download and resize image using helper function downloadImageFromUrl()
+        filename_with_extension = downloadImageFromURL(image_url, STAGING_PATH, filename)
+    except HTTPError as e:
+        print("Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
+        return ""
+    except Exception as e:
+        print("Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
+        return ""
+
     if not DONT_MOVE_IMAGES:
         # Move image to Anki medias folder.
         moveImage(filename_with_extension, IMAGE_PATH, STAGING_PATH)
