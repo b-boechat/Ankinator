@@ -58,10 +58,10 @@ def processImageRequest(image_url, sentence):
         # Download and resize image using helper function downloadImageFromUrl()
         filename_with_extension = downloadImageFromURL(image_url, STAGING_PATH, filename)
     except HTTPError as e:
-        print("Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
+        print(colorama.Fore.RED + "Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
         return ""
     except Exception as e:
-        print("Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
+        print(colorama.Fore.RED + "Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
         return ""
 
     if not DONT_MOVE_IMAGES:

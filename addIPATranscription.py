@@ -22,7 +22,7 @@ def addIPATranscription(anki_cards_list):
         else:
             # Word was not found in the IPA tsv.
             card[1] = "" # Should be already an empty string, reassigned here for clarity.
-            print("Did not find IPA transcription for: {}".format(card[0]))
+            print(colorama.Fore.RED + "Did not find IPA transcription for: {}".format(card[0]))
 
         # If dictionary form was provided, repeat the same process to find its IPA transcription. If not provided, it defaults to an empty string, so this won't get executed.
         if card[5]:
