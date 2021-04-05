@@ -45,6 +45,7 @@ def moveImage(filename_with_extension, dest_path, source_path):
 
 def processImageRequest(image_url, sentence):
 
+    colorama.init()
 
     # If no URL was providaded, returns empty string.
     if not image_url:
@@ -64,9 +65,11 @@ def processImageRequest(image_url, sentence):
         print(colorama.Fore.RED + "Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
         return ""
 
-    if not DONT_MOVE_IMAGES:
-        # Move image to Anki medias folder.
-        moveImage(filename_with_extension, IMAGE_PATH, STAGING_PATH)
+    if DONT_MOVE_IMAGES:
+        return ""
+
+    # Move image to Anki medias folder.
+    moveImage(filename_with_extension, IMAGE_PATH, STAGING_PATH)
     # Returns image field entry.
     return r'''<img src="{}">'''.format(filename_with_extension)
 

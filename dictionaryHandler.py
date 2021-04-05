@@ -8,6 +8,8 @@ def addSortedToFlashcardDictionary(words, presort_dictionary=True):
     """ Merge list of words with flashcard dictionary file while keeping it sorted and with no repeated words. If presort_dictionary is set to False, requires and assumes that flashcard dictionary file is already sorted, and operates faster.
     """
 
+    colorama.init()
+
     if DONT_UPDATE_DICTIONARY:
         return
 
@@ -26,7 +28,7 @@ def addSortedToFlashcardDictionary(words, presort_dictionary=True):
     insertions = []
     # Loop through list of words.
     for word in words:
-        # Getsthe leftmost insertion position for word in flashcard_dictionary_list.
+        # Gets the leftmost insertion position for word in flashcard_dictionary_list.
         insertion_point = bisect_left(flashcard_dictionary_list, word)
         # If word is already in dictionary, ignore it.
         if insertion_point != len(flashcard_dictionary_list) and flashcard_dictionary_list[insertion_point] == word:

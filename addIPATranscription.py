@@ -6,6 +6,9 @@ from bisect import bisect_left
 def addIPATranscription(anki_cards_list):
     """ Add IPA transcription to list of Anki Cards created by processSentenceEntries().
     """
+
+    colorama.init()
+
     # Open IPA transcriptions tsv file.
     with open(IPA_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8", newline="") as file:
         ipa_reader = csv.reader(file, delimiter="\t")
