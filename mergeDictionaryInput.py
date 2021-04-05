@@ -1,11 +1,14 @@
 from definitions import FLASHCARD_DICTIONARY_FULL_PATH, FLASHCARD_DICTIONARY_INPUT_FULL_PATH
 from dictionaryHandler import addSortedToFlashcardDictionary
-from utilities import backupFile
+from utilities import backupFile, displayFlagReminders
 
 
 def mergeDictionaryInput(backup_dictionary=True, backup_dictionary_input=True, presort_dictionary=True):
     """ Merges dictionary input file with dictionary, ignoring repeated words and adding new words sorted and all lowercase. If presort_dictionary is set to False, requires and assumes that flashcard dictionary file is already sorted, and operates faster.
     """
+
+    displayFlagReminders(dont_move_images_reminder=False)
+
     if backup_dictionary:
         backupFile(FLASHCARD_DICTIONARY_FULL_PATH, "dictionary")
 
