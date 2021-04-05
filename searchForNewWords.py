@@ -24,7 +24,7 @@ def searchForNewWords(show_sentences=False):
     with open(WORD_SEARCH_FILE_FULL_PATH, mode="r", encoding="utf-8") as word_search_file:
         word_search_lines = word_search_file.readlines()
         # Removes trailing whitespace and ignores only whitespace lines.
-        words = filter(None, map(str.rstrip, word_search_lines))
+        words = filter(None, map(str.lower, map(str.rstrip, word_search_lines)))
         # Split into separate words and flatten the list.
         words = map(str.split, words)
         words = [word for sublist in words for word in sublist]
