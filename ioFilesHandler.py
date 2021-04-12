@@ -1,14 +1,13 @@
 import csv # Write delimiter separated values
 import os
-from definitions import *
 
-def cleanOutputFile(full_filepath):
-    if os.path.exists(full_filepath):
-        os.remove(full_filepath)
+def removeFile(file_path):
+    if os.path.exists(file_path):
+        os.remove(file_path)
 
-def writeCardsToOutputFile(card_list):
+def writeCardsToOutputFile(card_list, output_file_path):
     #Open output file
-    with open(OUTPUT_FULL_PATH, "at", newline="", encoding="utf-8") as output_file:
+    with open(output_file_path, "at", newline="", encoding="utf-8") as output_file:
         #Appends contents from card_list as tab separated values.
         tsv_writer = csv.writer(output_file, delimiter="\t")
         for card in card_list:
@@ -25,9 +24,9 @@ def readCardsFromTSV(full_filepath):
         card_list = [row for row in card_list_obj]
     return card_list
 
-def readSentencesFromInputFile():
+def readSentencesFromInputFile(input_file_path):
     # Open input file.
-    with open(INPUT_FULL_PATH, encoding="utf-8") as input_file:
+    with open(input_file_path, encoding="utf-8") as input_file:
         lines = list(filter(None, (line.rstrip() for line in input_file)))
     # Assert proper format (formatted sentence, url link or .)
     assert (len(lines) % 2 == 0)

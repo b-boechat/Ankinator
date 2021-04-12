@@ -1,10 +1,10 @@
-from definitions import FLASHCARD_DICTIONARY_FULL_PATH, STAGING_FLASHCARD_DICTIONARY_FULL_PATH, DONT_UPDATE_DICTIONARY
+from definitions import STAGING_FLASHCARD_DICTIONARY_FULL_PATH, DONT_UPDATE_DICTIONARY
 from shutil import copy2
 import os
 from bisect import bisect_left
 import colorama
 
-def addSortedToFlashcardDictionary(words, presort_dictionary=True):
+def addSortedToFlashcardDictionary(words, dictionary_file_path, presort_dictionary=True):
     """ Merge list of words with flashcard dictionary file while keeping it sorted and with no repeated words. If presort_dictionary is set to False, requires and assumes that flashcard dictionary file is already sorted, and operates faster.
     """
 
@@ -14,7 +14,7 @@ def addSortedToFlashcardDictionary(words, presort_dictionary=True):
         return
 
     # Open flashcard dictionary file and save its contents to flashcard_dictionary_list.
-    with open(FLASHCARD_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8") as input_file:
+    with open(dictionary_file_path, mode="r", encoding="utf-8") as input_file:
         flashcard_dictionary_list = input_file.readlines()
         # Removes trailing whitespace, and ignores lines consisting of only whitespace (empty lines after whitespace removal).
         flashcard_dictionary_list = list(filter(None, map(str.rstrip, flashcard_dictionary_list)))
@@ -55,5 +55,5 @@ def addSortedToFlashcardDictionary(words, presort_dictionary=True):
             output_file.write("{}\n".format(flashcard_dictionary_list[i]))
 
     # Replace old dictionary with the new one.
-    copy2(STAGING_FLASHCARD_DICTIONARY_FULL_PATH, FLASHCARD_DICTIONARY_FULL_PATH)
+    copy2(STAGING_FLASHCARD_DICTIONARY_FULL_PATH, dictionary_file_path)
     os.remove(STAGING_FLASHCARD_DICTIONARY_FULL_PATH)

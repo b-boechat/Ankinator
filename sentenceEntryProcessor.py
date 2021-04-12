@@ -65,7 +65,7 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
 def getRawSentenceFromFormatted(formatted_sentence):
     return re.sub(r"(\[\d?)|((\|[^\]]*)?\])|(<\d?)|>", "", formatted_sentence)
 
-def processAllEntries(sentence_entries, presort_dictionary):
+def processAllEntries(sentence_entries, output_file_path, dictionary_file_path, presort_dictionary):
     anki_cards_list = []
     for sentence_entry in sentence_entries:
         # Get elements from sentence entry.
@@ -79,6 +79,6 @@ def processAllEntries(sentence_entries, presort_dictionary):
     # Add IPA transcription to cards.
     addIPATranscription(anki_cards_list)
     # Writes cards to output file, as tsv.
-    writeCardsToOutputFile(anki_cards_list)
+    writeCardsToOutputFile(anki_cards_list, output_file_path)
     # Add words to flashcard dictionary. First paramater passed is a list of all target words and their dictionary forms, if provided.
-    addSortedToFlashcardDictionary([card[0] for card in anki_cards_list] + [card[5] for card in anki_cards_list if card[5]], presort_dictionary)
+    addSortedToFlashcardDictionary([card[0] for card in anki_cards_list] + [card[5] for card in anki_cards_list if card[5]], dictionary_file_path, presort_dictionary=presort_dictionary)
