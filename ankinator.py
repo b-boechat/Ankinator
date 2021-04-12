@@ -73,7 +73,8 @@ parser_search.add_argument("word_search_path", default=definitions.WORD_SEARCH_F
 parser_search.add_argument("-d", dest="dictionary_path", metavar="DICTIONARY_PATH", default=definitions.FLASHCARD_DICTIONARY_FULL_PATH,
         help="Path to flashcard dictionary file. If not specified, defaults to FLASHCARD_DICTIONARY_FULL_PATH in definitions.py (currently \"%(default)s\").")
 parser_search.add_argument("-s", "--sentences", dest="show_sentences", action="store_true",
-        help="Enables color coded sentence displaying. This offers a good visualization if input file is structured in sentences")
+        help="Enables color coded sentence displaying. This offers a good visualization if word search file is structured in sentences")
+parser_search.set_defaults(func=searchForNewWordsWrapper)
 
 # Parse arguments and execute the appropriate function
 args = parser.parse_args()
