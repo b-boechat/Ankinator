@@ -24,7 +24,7 @@ def searchForNewWordsWrapper(args):
     """ Calls searchForNewWords with parsed arguments.
         """
     searchForNewWords(dictionary_path=args.dictionary_path, word_search_path=args.word_search_path,
-                      show_sentences=args.show_sentences)
+                      show_sentences=args.show_sentences, newline_separator=args.newline_separator)
 
 
 
@@ -75,6 +75,8 @@ parser_search.add_argument("-d", dest="dictionary_path", metavar="DICTIONARY_PAT
 parser_search.add_argument("-s", "--sentences", dest="show_sentences", action="store_true",
         help="Enables color coded sentence displaying. This offers a good visualization if word search file is structured in sentences")
 parser_search.set_defaults(func=searchForNewWordsWrapper)
+parser_search.add_argument("-n", "--newline", dest="newline_separator", action="store_true",
+        help="Display lists of known and unknown words separated with newline, instead of comma + space.")
 
 # Parse arguments and execute the appropriate function
 args = parser.parse_args()
