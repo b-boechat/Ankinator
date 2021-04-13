@@ -8,10 +8,25 @@ def addSortedToFlashcardDictionary(words, dictionary_file_path, presort_dictiona
     """ Merge list of words with flashcard dictionary file while keeping it sorted and with no repeated words. If presort_dictionary is set to False, requires and assumes that flashcard dictionary file is already sorted, and operates faster.
     """
 
-    colorama.init()
+    colorama.init(autoreset=True)
 
     if DONT_UPDATE_DICTIONARY:
         return
+
+    # Remove duplicates and sort list of words to be merged.
+    words = list(dict.fromkeys(words))
+    words.sort()
+
+    # If dictionary file is non existent, create it with sorted list of words.
+    if not os.path.exists(dictionary_file_path):
+        with open(STAGING_FLASHCARD_DICTIONARY_FULL_PATH, mode="w", encoding="utf-8") as output_file:
+            for word in words:
+                output_file.write("{}\n".format(word))
+                print(colorama.Fore.GREEN + "Word added to dictionary: {}".format(word))
+        copy2(STAGING_FLASHCARD_DICTIONARY_FULL_PATH, dictionary_file_path)
+        os.remove(STAGING_FLASHCARD_DICTIONARY_FULL_PATH)
+        return
+
 
     # Open flashcard dictionary file and save its contents to flashcard_dictionary_list.
     with open(dictionary_file_path, mode="r", encoding="utf-8") as input_file:
@@ -22,9 +37,6 @@ def addSortedToFlashcardDictionary(words, dictionary_file_path, presort_dictiona
         if presort_dictionary:
             flashcard_dictionary_list.sort()
 
-    # Remove duplicates and sort list of words to be merged.
-    words = list(dict.fromkeys(words))
-    words.sort()
     insertions = []
     # Loop through list of words.
     for word in words:

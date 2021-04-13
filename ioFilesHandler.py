@@ -16,6 +16,9 @@ def writeCardsToOutputFile(card_list, output_file_path):
 def readCardsFromTSV(full_filepath):
     # This function is just for debugging purposes.
 
+    if not os.path.exists(full_filepath):
+        print("Couldn't find input file \"{}\"".format(full_filepath))
+        raise FileNotFoundError
     # Opens input file.
     with open(full_filepath, newline="") as input_file:
     # Reads tsv content to reader object.
@@ -25,6 +28,11 @@ def readCardsFromTSV(full_filepath):
     return card_list
 
 def readSentencesFromInputFile(input_file_path):
+
+    if not os.path.exists(input_file_path):
+        print("Couldn't find input file \"{}\"".format(input_file_path))
+        raise FileNotFoundError
+
     # Open input file.
     with open(input_file_path, encoding="utf-8") as input_file:
         lines = list(filter(None, (line.rstrip() for line in input_file)))

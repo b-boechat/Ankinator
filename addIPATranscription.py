@@ -7,7 +7,11 @@ def addIPATranscription(anki_cards_list):
     """ Add IPA transcription to list of Anki Cards created by processSentenceEntries().
     """
 
-    colorama.init()
+    colorama.init(autoreset=True)
+
+    if not os.path.exists(full_filepath):
+        print("Couldn't find IPA file \"{}\"".format(IPA_DICTIONARY_FULL_PATH))
+        raise FileNotFoundError
 
     # Open IPA transcriptions tsv file.
     with open(IPA_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8", newline="") as file:

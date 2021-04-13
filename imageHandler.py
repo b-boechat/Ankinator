@@ -45,7 +45,7 @@ def moveImage(filename_with_extension, dest_path, source_path):
 
 def processImageRequest(image_url, sentence):
 
-    colorama.init()
+    colorama.init(autoreset=True)
 
     # If no URL was providaded, returns empty string.
     if not image_url:

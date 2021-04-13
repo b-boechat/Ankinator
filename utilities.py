@@ -2,6 +2,7 @@ from datetime import datetime
 from uuid import uuid4
 from shutil import copy2
 from definitions import BACKUP_PATH, DONT_MOVE_IMAGES, DONT_UPDATE_DICTIONARY
+import os
 import colorama
 
 def generateFilename(beginning):
@@ -11,10 +12,11 @@ def generateFilename(beginning):
 
 def backupFile(file_full_path, backup_filename):
     # Creates backup of specified file.
-    copy2(file_full_path, "{}{}.txt".format(BACKUP_PATH, generateFilename(backup_filename)))
+    if os.path.exists(file_full_path):
+        copy2(file_full_path, "{}{}.txt".format(BACKUP_PATH, generateFilename(backup_filename)))
 
 def displayFlagReminders(dont_move_images_reminder=True, dont_update_dictionary_reminder=True):
-    colorama.init()
+    colorama.init(autoreset=True)
     if dont_move_images_reminder and DONT_MOVE_IMAGES:
         print(colorama.Fore.YELLOW + "Reminder: DONT_MOVE_IMAGES is active.")
     if dont_update_dictionary_reminder and DONT_UPDATE_DICTIONARY:

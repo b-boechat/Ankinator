@@ -3,20 +3,26 @@ from definitions import IPA_DICTIONARY_FULL_PATH
 import colorama
 import regex as re
 import csv
+import os
 
 def get_words_from_lines(lines):
-    """ Helper function that returns list of words from list of sentences. Tries to deal gracefully with apostrophes (which are sometimes part of the word and sometimes delimeters) by using the IPA tsv as reference. Return value has words in the same order as originally in the text, including duplicates.
+    """ Helper function that returns list of words from list of sentences. Tries to deal gracefully with apostrophes (which are sometimes part of the word and sometimes delimeters) by using the IPA tsv as reference. If IPA tsv is not avaiable, treats every apostrophe as part of the word. Return value has words in the same order as originally in the text, including duplicates.
     """
-    with open(IPA_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8", newline="") as file:
-        # Read words from IPA dictionary to a list.
-        ipa_reader = csv.reader(file, delimiter="\t")
-        ipa_list_words = [row[0] for row in ipa_reader]
 
     # Separate lines into words, at first considering that apostrophes do not delimit words (and are part of them).
     word_candidates = [re.findall(r"\b([\p{L}'’\-]*)(?![\p{L}'’\-])", line) for line in lines]
     # Flatten word_candidates to a list and convert all letters to lowercase.
 
     word_candidates = list(map(str.lower, filter(None, [candidate for sublist in word_candidates for candidate in sublist])))
+
+    if not os.path.exists(IPA_DICTIONARY_FULL_PATH):
+        return word_candidates
+
+    # Read words from IPA dictionary to a list.
+    with open(IPA_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8", newline="") as file:
+        ipa_reader = csv.reader(file, delimiter="\t")
+        ipa_list_words = [row[0] for row in ipa_reader]
+
 
     words = []
     # Loops through candidate words.
@@ -47,12 +53,20 @@ def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline
 
     print("Scanning file {} for words...".format(word_search_path))
 
+    if not os.path.exists(dictionary_path):
+        print("Couldn't find dictionary file \"{}\"".format(dictionary_path))
+        raise FileNotFoundError
+
     # Open flashcard dictionary file and save its contents to flashcard_dictionary_list.
     with open(dictionary_path, mode="r", encoding="utf-8") as dict_file:
         flashcard_dictionary_list = dict_file.readlines()
         # Remove trailing whitespace and ignores lines consisting of only whitespace (empty lines after whitespace removal).
         flashcard_dictionary_list = list(filter(None, map(str.rstrip, flashcard_dictionary_list)))
         flashcard_dictionary_list.sort()
+
+    if not os.path.exists(word_search_path):
+        print("Couldn't file word search file \"{}\"".format(word_search_path))
+        raise FileNotFoundError
 
     with open(word_search_path, mode="r", encoding="utf-8") as word_search_file:
         word_search_lines = word_search_file.readlines()
