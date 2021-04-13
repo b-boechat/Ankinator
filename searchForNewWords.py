@@ -1,7 +1,7 @@
 from bisect import bisect_left
 from definitions import IPA_DICTIONARY_FULL_PATH
 import colorama
-import re
+import regex as re
 import csv
 
 def get_words_from_lines(lines):
@@ -13,7 +13,7 @@ def get_words_from_lines(lines):
         ipa_list_words = [row[0] for row in ipa_reader]
 
     # Separate lines into words, at first considering that apostrophes do not delimit words (and are part of them).
-    word_candidates = [re.findall(r"\b([\w'’\-]*)(?![\w'’\-])", line) for line in lines]
+    word_candidates = [re.findall(r"\b([\p{L}'’\-]*)(?![\p{L}'’\-])", line) for line in lines]
     # Flatten word_candidates to a list and convert all letters to lowercase.
 
     word_candidates = list(map(str.lower, filter(None, [candidate for sublist in word_candidates for candidate in sublist])))
@@ -126,7 +126,7 @@ def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline
 
 
 
-        print("\nSentences:\n")
+        print("\nText:\n")
         for sentence in word_search_lines:
             print(sentence, end="")
         print()
