@@ -5,7 +5,7 @@ import re
 import csv
 
 def get_words_from_lines(lines):
-    """ Helper function that returns list of words from list of sentences. Tries to deal gracefully with apostrophes (sometimes are part of the word, sometimes are delimiters) by using the IPA tsv as reference.
+    """ Helper function that returns list of words from list of sentences. Tries to deal gracefully with apostrophes (which are sometimes part of the word and sometimes delimeters) by using the IPA tsv as reference. Return value has words in the same order as originally in the text, including duplicates.
     """
     with open(IPA_DICTIONARY_FULL_PATH, mode="r", encoding="utf-8", newline="") as file:
         # Read words from IPA dictionary to a list.
@@ -15,10 +15,10 @@ def get_words_from_lines(lines):
     # Separate lines into words, at first considering that apostrophes do not delimit words (and are part of them).
     word_candidates = [re.findall(r"\b([\w'’\-]*)(?![\w'’\-])", line) for line in lines]
     # Flatten word_candidates to a list and convert all letters to lowercase.
+
     word_candidates = list(map(str.lower, filter(None, [candidate for sublist in word_candidates for candidate in sublist])))
 
     words = []
-    words_after_apostrophe = []
     # Loops through candidate words.
     for candidate in word_candidates:
         if ("'" not in candidate) and ("’" not in candidate):
@@ -36,17 +36,8 @@ def get_words_from_lines(lines):
                 if match.group(2):
                     # If the word candidate ends with apostrophe, second group will be empty. Notice that, in this case, match.group(1) is the entire word candidate.
                     words.append(match.group(2))
-                    # Also append it to a different list of words after apostrophe, which are treated separately when showing color coded sentences.
-                    words_after_apostrophe.append(match.group(2))
 
-    # Remove duplicates and sort list of words.
-    words = list(dict.fromkeys(words))
-    words.sort()
-
-    return words, words_after_apostrophe
-
-
-
+    return words
 
 def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline_separator):
     """ Searches WORD_SEARCH_FILE_FULL_PATH for unknown words (not already in dictionary), printing the results. If the file is a list of sentences, break them into words before searching. If show_sentences is set to True, also prints the actual sentences from the file, with each word colored according to its presence in the dictionary. This only makes sense if the file is a list of sentences (not a list of words)
@@ -54,23 +45,32 @@ def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline
 
     colorama.init(autoreset=True)
 
+    print("Scanning file {} for words...".format(word_search_path))
+
     # Open flashcard dictionary file and save its contents to flashcard_dictionary_list.
     with open(dictionary_path, mode="r", encoding="utf-8") as dict_file:
         flashcard_dictionary_list = dict_file.readlines()
-        # Removes trailing whitespace and ignores lines consisting of only whitespace (empty lines after whitespace removal).
+        # Remove trailing whitespace and ignores lines consisting of only whitespace (empty lines after whitespace removal).
         flashcard_dictionary_list = list(filter(None, map(str.rstrip, flashcard_dictionary_list)))
         flashcard_dictionary_list.sort()
 
     with open(word_search_path, mode="r", encoding="utf-8") as word_search_file:
         word_search_lines = word_search_file.readlines()
+        # Remove indicator character ϰ, if it occurs in the text (unlikely). This situation is not ideal, but better than breaking the show_sentence code (see below).
+        for i in range(len(word_search_lines)):
+            word_search_lines[i] = re.sub(r"ϰ", "", word_search_lines[i])
 
     # Call helper function to obtain list of words from lines.
-    words, words_after_apostrophe = get_words_from_lines(word_search_lines)
+    words = get_words_from_lines(word_search_lines)
+
+    # Generate list of words with no duplicates and sorted. The original "words" variable is not changed, as it's still needed.
+    unique_words = list(dict.fromkeys(words))
+    unique_words.sort()
 
     known_words = []
     unknown_words = []
 
-    for word in words:
+    for word in unique_words:
         # Gets the leftmost insertion position for word in flashcard_dictionary_list.
         insertion_point = bisect_left(flashcard_dictionary_list, word)
         # If word is already in dictionary, add it to known words.
@@ -82,49 +82,50 @@ def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline
 
     if newline_separator:
         # Print count and list of known words (already in dictionary), with vertical display (separate words with newline).
-        print(colorama.Fore.GREEN + "\nKnown words ({}):".format(len(known_words)), end="\n\n")
+        print("\nKnown words ({}):".format(len(known_words)), end="\n\n")
         for word in known_words:
             print(colorama.Fore.GREEN + word)
         # Print count and list of unknown words (not in dictionary).
-        print(colorama.Fore.RED + "\nUnknown words ({}):".format(len(unknown_words)), end="\n\n")
+        print("\nUnknown words ({}):".format(len(unknown_words)), end="\n\n")
         for word in unknown_words:
             print(colorama.Fore.RED + word)
 
     else:
         # Print count and list of known words (already in dictionary), with horizontal display (separate words with comma + space).
-        print(colorama.Fore.GREEN + "\nKnown words ({}):".format(len(known_words)), end="\n\n")
+        print("\nKnown words ({}):".format(len(known_words)), end="\n\n")
         for word in known_words:
             print(colorama.Fore.GREEN + word, end=", ")
         print()
-        print(colorama.Fore.RED + "\nUnknown words ({}):".format(len(unknown_words)), end="\n\n")
+        print("\nUnknown words ({}):".format(len(unknown_words)), end="\n\n")
         for word in unknown_words:
             print(colorama.Fore.RED + word, end=", ")
         print()
 
     if show_sentences:
-        # Loops through file lines.
+        # Initialize index to traverse word_search_lines
+        i = 0
+        for word in words:
+            # Set match_num to 0, just to execute the while loop at least once for each word.
+            match_num = 0
+            while not match_num:
+                # Try to find a match for current word in current (i-th) line. Only one match is made, since count is set to 1.
+                # Replace match with colored version followed by special character ϰ, which indicates that this portion of the string has been consumed. The regex does not match if there's a ϰ character somewhere ahead in the string.
+                # If match is successful, match_num is set to 1, and the loop breaks. Otherwise, match_num is set to 0.
+                word_search_lines[i], match_num = re.subn(r"({})(?![^ϰ]+ϰ)".format(word.replace("-", r"\-")),
+                        (colorama.Fore.GREEN if word in known_words else colorama.Fore.RED)+r"\1"+colorama.Fore.RESET+"ϰ",
+                        word_search_lines[i], count=1, flags=re.I)
+                if not match_num:
+                # If no match is found, increment i, so the next iteration will search in the next line.
+                    i += 1
+                    # This exception should never be raised, it's here for safety (to avoid infinite looping if there's a bug in the code).
+                    if i >= len(word_search_lines):
+                        raise Exception
+        # Remove indicator characters.
         for i in range(len(word_search_lines)):
-            # For each known word, replace its ocurrencies in line with a green colored version of itself.
-            for word in known_words:
-                # Words after apostrophes allow, obviously, apostrophes to precede them.
-                if word in words_after_apostrophe:
-                    word_search_lines[i] = re.sub(r"(?<![\w\-])({})(?![\w'’\-])".format(word.replace("-", r"\-")),
-                                                  colorama.Fore.GREEN + r"\1" + colorama.Fore.RESET,
-                                                  word_search_lines[i], flags=re.I)
-                else:
-                    word_search_lines[i] = re.sub(r"(?<![\w'’\-])({})(?![\w'’\-])".format(word.replace("-", r"\-")),
-                                              colorama.Fore.GREEN+ r"\1" + colorama.Fore.RESET,
-                                              word_search_lines[i], flags=re.I)
-            # For each unknown word, replace its ocurrencies in line with a red colored version of itself.
-            for word in unknown_words:
-                if word in words_after_apostrophe:
-                    word_search_lines[i] = re.sub(r"(?<![\w\-])({})(?![\w'’\-])".format(word.replace("-", r"\-")),
-                                                  colorama.Fore.RED + r"\1" + colorama.Fore.RESET,
-                                                  word_search_lines[i], flags=re.I)
-                else:
-                    word_search_lines[i] = re.sub(r"(?<![\w'’\-])({})(?![\w'’\-])".format(word.replace("-", r"\-")),
-                                              colorama.Fore.RED + r"\1" + colorama.Fore.RESET,
-                                              word_search_lines[i], flags=re.I)
+            word_search_lines[i] = re.sub(r"ϰ", "", word_search_lines[i])
+
+
+
         print("\nSentences:\n")
         for sentence in word_search_lines:
             print(sentence, end="")
