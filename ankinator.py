@@ -78,7 +78,10 @@ parser_search.set_defaults(func=searchForNewWordsWrapper)
 parser_search.add_argument("-n", "--newline", dest="newline_separator", action="store_true",
         help="Display lists of known and unknown words separated with newline, instead of comma + space.")
 
-# Parse arguments and execute the appropriate function
+# Parse arguments and execute the appropriate function, or show usage message if program was called without arguments.
 args = parser.parse_args()
-args.func(args)
+if hasattr(args, "func"):
+    args.func(args)
+else:
+    parser.print_usage()
 
