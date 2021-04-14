@@ -12,5 +12,5 @@ IMAGE_HEIGHT = 300
 MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME = 8
 IMAGE_FILENAME_PREFIX = "_FR_"
 
-DONT_MOVE_IMAGES = True # Useful for debugging or testing.
-DONT_UPDATE_DICTIONARY = True # Useful for debugging or testing.
+DONT_MOVE_IMAGES = False # Useful for debugging or testing.
+DONT_UPDATE_DICTIONARY = False # Useful for debugging or testing.
