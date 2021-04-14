@@ -1,5 +1,6 @@
 from dictionaryHandler import addSortedToFlashcardDictionary
 from utilities import backupFile, displayFlagReminders
+import os
 
 
 def mergeDictionaryInput(dictionary_path, dict_input_path,
