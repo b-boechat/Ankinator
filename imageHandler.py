@@ -1,5 +1,5 @@
-import urllib.request
-from urllib.error import HTTPError
+import requests
+import shutil
 import re
 from PIL import Image
 from math import floor
@@ -10,20 +10,25 @@ import colorama
 
 
 def downloadImageFromURL(url, path, filename):
-    # Install opener to avoid Error 403. See: https://stackoverflow.com/questions/34692009/download-image-from-url-using-python-urllib-but-receiving-http-error-403-forbid
-    opener = urllib.request.build_opener()
-    opener.addheaders=[('User-Agent',r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36')]
-    urllib.request.install_opener(opener)
-
+    
     # Get image extension from URL.
     extension = re.search(r"\.([a-z]*)$", url).group(1)
     # Get filename with extension.
     filename_with_extension = r"{}.{}".format(filename, extension)
     # Generate full staging path.
     full_path = r"{}{}".format(path, filename_with_extension)
-    # Download image from URL, saving on staging path.
 
-    urllib.request.urlretrieve(url, full_path)
+    # Open the URL image and fetch the stream content.
+    resp = requests.get(url, stream = True, headers={'User-Agent' : r'Mozilla/5.0 (Windows NT 6.1; WOW64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/36.0.1941.0 Safari/537.36'})
+
+    # Raise exception if the HTTP request returned an unsucessful status code.
+    resp.raise_for_status()
+
+    # In case of success, set decode_content value to True, otherwise the downloaded image file's size will be zero.
+    resp.raw.decode_content = True
+    
+    with open(full_path,'wb') as f:
+        shutil.copyfileobj(resp.raw, f)
 
     image = Image.open(full_path)
     # Resize downloaded image to height=IMAGE_HEIGHT, maintaining original proportions.
@@ -55,13 +60,11 @@ def processImageRequest(image_url, sentence):
     num_beginning_characters = min(MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME, len(raw_sentence))
     # Generate image filename.
     filename = generateFilename("{}{}".format(IMAGE_FILENAME_PREFIX, re.sub(r'\W+', '', sentence)[:num_beginning_characters]))
+    
+    # Download and resize image using helper function downloadImageFromUrl()
     try:
-        # Download and resize image using helper function downloadImageFromUrl()
         filename_with_extension = downloadImageFromURL(image_url, STAGING_PATH, filename)
-    except HTTPError as e:
-        print(colorama.Fore.RED + "Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
-        return ""
-    except Exception as e:
+    except requests.exceptions.RequestException as e:
         print(colorama.Fore.RED + "Couldn't download image for sentence: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
         return ""
 
