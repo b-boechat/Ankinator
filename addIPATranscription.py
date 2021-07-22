@@ -1,6 +1,7 @@
 import csv
 import colorama
 from definitions import IPA_DICTIONARY_FULL_PATH
+import os
 from bisect import bisect_left
 
 def addIPATranscription(anki_cards_list):
@@ -9,7 +10,7 @@ def addIPATranscription(anki_cards_list):
 
     colorama.init(autoreset=True)
 
-    if not os.path.exists(full_filepath):
+    if not os.path.exists(IPA_DICTIONARY_FULL_PATH):
         print("Couldn't find IPA file \"{}\"".format(IPA_DICTIONARY_FULL_PATH))
         raise FileNotFoundError
 
