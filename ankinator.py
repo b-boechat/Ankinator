@@ -11,7 +11,9 @@ def generateCardsFromFileWrapper(args):
                           backup_input="i" not in args.nobackup, backup_output="o" not in args.nobackup,
                           backup_dictionary="d" not in args.nobackup,
                           input_file_path=args.input_path, output_file_path=args.output_path,
-                          dictionary_file_path=args.dictionary_path)
+                          dictionary_file_path=args.dictionary_path,
+                          default_random_wavenet=args.default_random_wavenet
+                          )
 
 def mergeDictionaryInputWrapper(args):
     """ Calls mergeDictionaryInput with parsed arguments.
@@ -47,7 +49,10 @@ parser_generate.add_argument("-b", "--nobackup", metavar="FILES", default=[], na
 parser_generate.add_argument("-p", "--nopresort", dest="presort_dictionary", action="store_false",
         help="Disables flashcard dictionary presorting.")
 parser_generate.add_argument("-c", "--noclean", dest="clean_output", action="store_false",
-        help="Disables output file cleaning before execution (not recommended).") # This option is not tested.
+        help="Disables output file cleaning before execution (not recommended).") # TODO: Tests needed.
+parser_generate.add_argument("-r", "--defaultrandomwavenet", dest="default_random_wavenet", action="store_true",
+        help="If audio request is not specified, defaults to a random Google TTS Wavenet voice.")
+
 parser_generate.set_defaults(func=generateCardsFromFileWrapper)
 
 

@@ -1,5 +1,8 @@
 import csv # Write delimiter separated values
 import os
+import re
+
+import regex as re
 
 def removeFile(file_path):
     if os.path.exists(file_path):
@@ -27,7 +30,7 @@ def readCardsFromTSV(full_filepath):
         card_list = [row for row in card_list_obj]
     return card_list
 
-def readSentencesFromInputFile(input_file_path):
+def readSentencesFromInputFile(input_file_path, default_random_wavenet):
 
     if not os.path.exists(input_file_path):
         print("Couldn't find input file \"{}\"".format(input_file_path))
@@ -35,30 +38,40 @@ def readSentencesFromInputFile(input_file_path):
 
     # Open input file.
     with open(input_file_path, encoding="utf-8") as input_file:
-        lines = list(filter(None, (line.rstrip() for line in input_file)))
-
+        lines = list(filter(None, (line.rstrip().lstrip() for line in input_file)))
     # Initialize empty list of sentence entries.
     sentence_entries = []
-
     # Initialize blank sentence entry fields.
     formatted_sentence = ""
     img_url = ""
     audio_file = ""
-
     for line in lines:
-        if line.startswith("i="):
-            img_url = line[2:].lstrip()
-        elif line.startswith("a="):
-            audio_file = line[2:].lstrip()
-        else:
-            if formatted_sentence:
-                sentence_entries.append([formatted_sentence, img_url, audio_file])
-                img_url = ""
-                audio_file = ""
-            formatted_sentence = line[:]
+        repl_line, match = re.subn(r"^i\s*=\s*", "", line, count=1)
+        if match:
+            # Line corresponds to an image url entry
+            img_url = repl_line
+            continue
+
+        repl_line, match = re.subn(r"^[ar]\s*=\s*", "", line, count=1)
+        if match:
+            # Line corresponds to an audio file entry.
+            audio_file = repl_line
+            continue
+
+        # If none of the conditions were satisfied, line corresponds to a formatted sentence entry.
+
+        if formatted_sentence:
+            if not audio_file and default_random_wavenet:
+                audio_file = "tts:w."
+             # If it's not the first sentence, append the previous entry to sentence entries.
+            sentence_entries.append([formatted_sentence, img_url, audio_file])
+            img_url = ""
+            audio_file = ""
+        # Save formatted sentence entry.
+        formatted_sentence = repl_line
 
     if formatted_sentence:
+        # Append last sentence entry.
         sentence_entries.append([formatted_sentence, img_url, audio_file])
-
 
     return sentence_entries
