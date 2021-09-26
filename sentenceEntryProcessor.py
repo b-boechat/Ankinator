@@ -1,10 +1,10 @@
 import re
-from imageHandler import processImageRequest
+from mediaHandler import processMediaRequest
 from ioFilesHandler import writeCardsToOutputFile
 from addIPATranscription import addIPATranscription
 from dictionaryHandler import addSortedToFlashcardDictionary
 
-def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
+def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field, audio_field):
 
     # Find patterns for words with no article, optionally containing a dictionary form.
     pattern_no_article = re.compile(r'\[([^\]|\d]*)(?:\|([^\]]*))?\]')
@@ -22,13 +22,13 @@ def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field):
                         matches[1],  # Dictionary form
                         "", # Dictionary form IPA transcription, will be added by addIPATranscription afterwards.
                         image_field,  # Image
-                        ""  # Recording
+                        audio_field  # Recording
                         ] for matches in matches_no_article]
 
     return fields_no_article
 
 
-def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
+def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field, audio_field):
 
     # Compile regular expression to find word with article, optionally containing a dictionary form.
     pattern_with_article = re.compile(r'<(\d)([^\>]*)>.*\[\1([^\]|]*)(?:\|([^\]]*))?\]')
@@ -56,7 +56,7 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field):
                 dictionary_form.lower(), # Dictionary form
                 "", # Dictionary form IPA transcription, will be added by addIPATranscription afterwards.
                 image_field, # Image
-                "" # Recording
+                audio_field # Recording
             ])
             # Consumes tag from formatted string, so the next iteration won't find the same match.
             formatted_sentence = re.sub(number_tag, "", formatted_sentence)
@@ -69,13 +69,13 @@ def processAllEntries(sentence_entries, output_file_path, dictionary_file_path, 
     anki_cards_list = []
     for sentence_entry in sentence_entries:
         # Get elements from sentence entry.
-        formatted_sentence, image_url = sentence_entry[0], sentence_entry[1]
+        formatted_sentence, image_url, audio_file = sentence_entry[0], sentence_entry[1], sentence_entry[2]
         sentence = getRawSentenceFromFormatted(formatted_sentence)
-        # Process the request and get image entry, if a URL was provided.
-        image_field = processImageRequest(image_url, sentence)
+        # Process the requests for image and audio entries, if provided.
+        image_field, audio_field = processMediaRequest(image_url, audio_file, sentence)
         # Generate fields and write them to output file.
-        anki_cards_list.extend(generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field))
-        anki_cards_list.extend(generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field))
+        anki_cards_list.extend(generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field, audio_field))
+        anki_cards_list.extend(generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field, audio_field))
     # Add IPA transcription to cards.
     addIPATranscription(anki_cards_list)
     # Writes cards to output file, as tsv.

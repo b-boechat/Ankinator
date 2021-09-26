@@ -36,15 +36,29 @@ def readSentencesFromInputFile(input_file_path):
     # Open input file.
     with open(input_file_path, encoding="utf-8") as input_file:
         lines = list(filter(None, (line.rstrip() for line in input_file)))
-    # Assert proper format (formatted sentence, url link or .)
-    assert (len(lines) % 2 == 0)
-    # Generate list of sentence entries.
+
+    # Initialize empty list of sentence entries.
     sentence_entries = []
-    for i in range(0, len(lines), 2):
-        # If image url line is "." (means not provided), change "." to empty string.
-        if lines[i+1] == ".":
-            lines[i+1] = ""
-        sentence_entries.append([lines[i], lines[i+1]])
+
+    # Initialize blank sentence entry fields.
+    formatted_sentence = ""
+    img_url = ""
+    audio_file = ""
+
+    for line in lines:
+        if line.startswith("i="):
+            img_url = line[2:].lstrip()
+        elif line.startswith("a="):
+            audio_file = line[2:].lstrip()
+        else:
+            if formatted_sentence:
+                sentence_entries.append([formatted_sentence, img_url, audio_file])
+                img_url = ""
+                audio_file = ""
+            formatted_sentence = line[:]
+
+    if formatted_sentence:
+        sentence_entries.append([formatted_sentence, img_url, audio_file])
+
 
     return sentence_entries
-
