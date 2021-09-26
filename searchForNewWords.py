@@ -102,7 +102,7 @@ def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline
         # Print count and list of unknown words (not in dictionary).
         print("\nUnknown words ({}):".format(len(unknown_words)), end="\n\n")
         for word in unknown_words:
-            print(colorama.Fore.RED + word)
+            print(colorama.Fore.YELLOW + word)
 
     else:
         # Print count and list of known words (already in dictionary), with horizontal display (separate words with comma + space).
@@ -112,7 +112,7 @@ def searchForNewWords(dictionary_path, word_search_path, show_sentences, newline
         print()
         print("\nUnknown words ({}):".format(len(unknown_words)), end="\n\n")
         for word in unknown_words:
-            print(colorama.Fore.RED + word, end=", ")
+            print(colorama.Fore.YELLOW + word, end=", ")
         print()
 
     if show_sentences:

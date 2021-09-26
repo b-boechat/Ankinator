@@ -44,7 +44,7 @@ def addSortedToFlashcardDictionary(words, dictionary_file_path, presort_dictiona
         insertion_point = bisect_left(flashcard_dictionary_list, word)
         # If word is already in dictionary, ignore it.
         if insertion_point != len(flashcard_dictionary_list) and flashcard_dictionary_list[insertion_point] == word:
-            print(colorama.Fore.RED + "Word was already in dictionary: {}".format(word))
+            print(colorama.Fore.YELLOW + "Word was already in dictionary: {}".format(word))
             continue
         # Otherwise, append tuple with word and its insertion point to the list of insertions. This insertion point is related to the original flashcard_dictionary_list, not counting insertions from previous iterations.
         insertions.append((word, insertion_point))
