@@ -1,8 +1,12 @@
 import re
+import colorama
+import json
+import urllib.request
 from mediaHandler import processMediaRequest
 from ioFilesHandler import writeCardsToOutputFile
 from addIPATranscription import addIPATranscription
 from dictionaryHandler import addSortedToFlashcardDictionary
+
 
 def generateAnkiFieldsNoArticle(sentence, formatted_sentence, image_field, audio_field):
 
@@ -65,7 +69,42 @@ def generateAnkiFieldsWithArticle(sentence, formatted_sentence, image_field, aud
 def getRawSentenceFromFormatted(formatted_sentence):
     return re.sub(r"(\[\d?)|((\|[^\]]*)?\])|(<\d?)|>", "", formatted_sentence)
 
-def processAllEntries(sentence_entries, output_file_path, dictionary_file_path, presort_dictionary):
+def addNotesToAnki(anki_cards_list, anki_deck, anki_note_type):
+    # TODO: Move this function to a better suited file.
+    for card in anki_cards_list:
+        request_dict = {
+            "action": "addNote",
+            "version": 6,
+            "params": {
+                "note": {
+                    "deckName": anki_deck,
+                    "modelName": anki_note_type,
+                    "fields": {
+                        "Target": card[0],
+                        "IPA": card[1],
+                        "Sentence": card[2],
+                        "Deleted sentence": card[3],
+                        "Sentence with HTML": card[4],
+                        "Dictionary form": card[5],
+                        "Dictionary form IPA": card[6],
+                        "Image": card[7],
+                        "Recording": card[8]
+                    },
+                    "options": {
+                        "allowDuplicate": True
+                    }
+                }
+            }
+        }
+        requestJson = json.dumps(request_dict).encode('utf-8')
+        response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
+        if response['error'] is not None:
+            raise Exception(response["error"])
+
+
+
+def processAllEntries(sentence_entries, output_file_path, dictionary_file_path, presort_dictionary, add_to_anki, anki_deck, anki_note_type):
+    # TODO: Change "card" nomenclature to "note".
     anki_cards_list = []
     for sentence_entry in sentence_entries:
         # Get elements from sentence entry.
@@ -80,5 +119,13 @@ def processAllEntries(sentence_entries, output_file_path, dictionary_file_path, 
     addIPATranscription(anki_cards_list)
     # Writes cards to output file, as tsv.
     writeCardsToOutputFile(anki_cards_list, output_file_path)
+    if add_to_anki:
+        try:
+            addNotesToAnki(anki_cards_list, anki_deck, anki_note_type)
+        except Exception as e:
+            # TODO: Error message should include which note (or sentence) caused the error.
+            print(colorama.Fore.RED + "Error adding card to Anki: \n{}.".format(repr(e)), end="\n\n")
+
+
     # Add words to flashcard dictionary. First paramater passed is a list of all target words and their dictionary forms, if provided.
     addSortedToFlashcardDictionary([card[0] for card in anki_cards_list] + [card[5] for card in anki_cards_list if card[5]], dictionary_file_path, presort_dictionary=presort_dictionary)

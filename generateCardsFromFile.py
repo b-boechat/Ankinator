@@ -5,7 +5,8 @@ from utilities import backupFile, displayFlagReminders
 def generateCardsFromFile(clean_output,  presort_dictionary,
                           backup_input, backup_output, backup_dictionary,
                           input_file_path, output_file_path, dictionary_file_path,
-                          default_random_wavenet):
+                          default_random_wavenet,
+                          add_to_anki, anki_deck, anki_note_type):
 
     displayFlagReminders()
 
@@ -19,7 +20,10 @@ def generateCardsFromFile(clean_output,  presort_dictionary,
     if clean_output:
         removeFile(output_file_path)
 
-    processAllEntries(sentence_entries, output_file_path, dictionary_file_path, presort_dictionary=presort_dictionary)
+    processAllEntries(sentence_entries,
+                      output_file_path, dictionary_file_path,
+                      presort_dictionary=presort_dictionary,
+                      add_to_anki=add_to_anki, anki_deck=anki_deck, anki_note_type=anki_note_type)
 
     if backup_output:
         backupFile(output_file_path, "output")

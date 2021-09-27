@@ -3,6 +3,7 @@ import definitions
 from generateCardsFromFile import generateCardsFromFile
 from mergeDictionaryInput import mergeDictionaryInput
 from searchForNewWords import searchForNewWords
+from addNotesToAnkiFromTsv import addNotesToAnkiFromTsv
 
 def generateCardsFromFileWrapper(args):
     """ Calls generateCardsFromFile with parsed arguments.
@@ -12,7 +13,8 @@ def generateCardsFromFileWrapper(args):
                           backup_dictionary="d" not in args.nobackup,
                           input_file_path=args.input_path, output_file_path=args.output_path,
                           dictionary_file_path=args.dictionary_path,
-                          default_random_wavenet=args.default_random_wavenet
+                          default_random_wavenet=args.default_random_wavenet,
+                          add_to_anki=args.add_to_anki, anki_deck=args.anki_deck, anki_note_type = args.anki_note_type
                           )
 
 def mergeDictionaryInputWrapper(args):
@@ -20,13 +22,22 @@ def mergeDictionaryInputWrapper(args):
         """
     mergeDictionaryInput(dictionary_path=args.dictionary_path, dict_input_path=args.dict_input_path,
                          backup_dictionary="d" not in args.nobackup, backup_dict_input="i" not in args.nobackup,
-                         presort_dictionary=args.presort_dictionary)
+                         presort_dictionary=args.presort_dictionary
+                         )
 
 def searchForNewWordsWrapper(args):
     """ Calls searchForNewWords with parsed arguments.
         """
     searchForNewWords(dictionary_path=args.dictionary_path, word_search_path=args.word_search_path,
-                      show_sentences=args.show_sentences, newline_separator=args.newline_separator)
+                      show_sentences=args.show_sentences, newline_separator=args.newline_separator
+                      )
+
+def addNotesToAnkiFromTsvWrapper(args):
+    """ Calls addNotesToAnki with parsed arguments.
+        """
+    addNotesToAnkiFromTsv(file_path=args.file_path,
+                   anki_deck=args.anki_deck, anki_note_type=args.anki_note_type
+                   )
 
 
 
@@ -52,7 +63,12 @@ parser_generate.add_argument("-c", "--noclean", dest="clean_output", action="sto
         help="Disables output file cleaning before execution (not recommended).") # TODO: Tests needed.
 parser_generate.add_argument("-r", "--defaultrandomwavenet", dest="default_random_wavenet", action="store_true",
         help="If audio request is not specified, defaults to a random Google TTS Wavenet voice.")
-
+parser_generate.add_argument("-a", "--addtoanki", dest="add_to_anki", action="store_true",
+        help="Enables adding generated flashcards directly to Anki. Additional arguments --deck and --type can be specified.")
+parser_generate.add_argument("-e", "--deck", dest="anki_deck", metavar="ANKI_DECK", default=definitions.ANKI_DECK,
+        help="Anki deck name. Only useful alongside --addtoanki. If not specified, defaults to ANKI_DECK in definitions.py (currently \"%(default)s\").")
+parser_generate.add_argument("-t", "--type", dest="anki_note_type", metavar="ANKI_NOTE_TYPE", default=definitions.ANKI_NOTE_TYPE,
+        help="Anki note type name. Only useful alongside --addtoanki. If not specified, defaults to ANKI_NOTE_TYPE in definitions.py (currently \"%(default)s\").")
 parser_generate.set_defaults(func=generateCardsFromFileWrapper)
 
 
@@ -79,9 +95,22 @@ parser_search.add_argument("-d", dest="dictionary_path", metavar="DICTIONARY_PAT
         help="Path to flashcard dictionary file. If not specified, defaults to FLASHCARD_DICTIONARY_FULL_PATH in definitions.py (currently \"%(default)s\").")
 parser_search.add_argument("-s", "--sentences", dest="show_sentences", action="store_true",
         help="Enables color coded sentence displaying. This offers a good visualization if word search file is structured in sentences")
-parser_search.set_defaults(func=searchForNewWordsWrapper)
 parser_search.add_argument("-n", "--newline", dest="newline_separator", action="store_true",
         help="Display lists of known and unknown words separated with newline, instead of comma + space.")
+parser_search.set_defaults(func=searchForNewWordsWrapper)
+
+
+# Create subparser for "generate" (calls generateCardsFromFile)
+parser_add = subparsers.add_parser("add", aliases=["a"], help="Add notes to Anki from TSV file.")
+
+parser_add.add_argument("-f", dest="file_path", metavar="FILE_PATH", default=definitions.OUTPUT_FULL_PATH,
+        help="Path to tsv file. If not specified, defaults to OUTPUT_FILE_PATH in definitions.py (currently \"%(default)s\").")
+parser_add.add_argument("-e", "--deck", dest="anki_deck", metavar="ANKI_DECK", default=definitions.ANKI_DECK,
+        help="Anki deck name. If not specified, defaults to ANKI_DECK in definitions.py (currently \"%(default)s\").")
+parser_add.add_argument("-t", "--type", dest="anki_note_type", metavar="ANKI_NOTE_TYPE", default=definitions.ANKI_NOTE_TYPE,
+        help="Anki note type name. If not specified, defaults to ANKI_NOTE_TYPE in definitions.py (currently \"%(default)s\").")
+parser_add.set_defaults(func=addNotesToAnkiFromTsvWrapper)
+
 
 # Parse arguments and execute the appropriate function, or show usage message if program was called without arguments.
 args = parser.parse_args()

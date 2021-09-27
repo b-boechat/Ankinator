@@ -17,13 +17,12 @@ def writeCardsToOutputFile(card_list, output_file_path):
             tsv_writer.writerow(card)
 
 def readCardsFromTSV(full_filepath):
-    # This function is just for debugging purposes.
 
     if not os.path.exists(full_filepath):
         print("Couldn't find input file \"{}\"".format(full_filepath))
         raise FileNotFoundError
     # Opens input file.
-    with open(full_filepath, newline="") as input_file:
+    with open(full_filepath, newline="", encoding="utf-8") as input_file:
     # Reads tsv content to reader object.
         card_list_obj = csv.reader(input_file, delimiter="\t")
         # Generates list of cards.
@@ -70,8 +69,10 @@ def readSentencesFromInputFile(input_file_path, default_random_wavenet):
         # Save formatted sentence entry.
         formatted_sentence = repl_line
 
+    # Append last sentence entry.
     if formatted_sentence:
-        # Append last sentence entry.
+        if not audio_file and default_random_wavenet:
+            audio_file = "tts:w."
         sentence_entries.append([formatted_sentence, img_url, audio_file])
 
     return sentence_entries
