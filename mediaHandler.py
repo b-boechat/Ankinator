@@ -6,7 +6,7 @@ import colorama
 from PIL import Image
 from math import floor
 from random import choice
-from google.cloud import texttospeech_v1
+from google.cloud import texttospeech_v1 as tts
 from definitions import MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME, STAGING_PATH, ANKI_MEDIA_PATH, \
     MEDIA_FILENAME_PREFIX, IMAGE_HEIGHT, DONT_MOVE_MEDIA, GOOGLE_TTS_CREDENTIALS_FULL_PATH
 from utilities import generateFilename
@@ -68,7 +68,7 @@ def processTtsRequest(repl_line, sentence, dest_filename):
 
     # Set credentials environment variable and initialize text to speech client.
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_TTS_CREDENTIALS_FULL_PATH
-    client = texttospeech_v1.TextToSpeechClient()
+    client = tts.TextToSpeechClient()
 
     # Use "wa" as shorthand for "fr-fr-wavenet-a" etc.
     voice_name = re.sub(r"^w([a-e])\s*$", r"fr-fr-wavenet-\1", repl_line, count=1, flags=re.IGNORECASE)
@@ -77,17 +77,17 @@ def processTtsRequest(repl_line, sentence, dest_filename):
     voice_name = re.sub(r"^w\.\s*$", r"fr-fr-wavenet-{}".format(choice(["a", "b", "c", "d", "e"])), voice_name, count=1, flags=re.IGNORECASE)
 
     # Specify voice and configuration parameters for Google TTS.
-    voice = texttospeech_v1.VoiceSelectionParams(
+    voice = tts.VoiceSelectionParams(
         language_code='fr-FR',
         name=voice_name
     )
-    audio_config = texttospeech_v1.AudioConfig(
-        audio_encoding=texttospeech_v1.AudioEncoding.MP3
+    audio_config = tts.AudioConfig(
+        audio_encoding=tts.AudioEncoding.MP3
     )
 
     # Synthetize sentence recording.
     response = client.synthesize_speech(
-        request={"input": texttospeech_v1.SynthesisInput(text=sentence), "voice": voice, "audio_config": audio_config}
+        request={"input": tts.SynthesisInput(text=sentence), "voice": voice, "audio_config": audio_config}
     )
 
     # Save audio file in the staging directory.

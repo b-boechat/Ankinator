@@ -97,7 +97,7 @@ def addNotesToAnki(anki_cards_list, anki_deck, anki_note_type):
             }
         }
         requestJson = json.dumps(request_dict).encode('utf-8')
-        response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson)))
+        response = json.load(urllib.request.urlopen(urllib.request.Request('http://localhost:8765', requestJson))) # Requires AnkiConnect Anki add-on.
         if response['error'] is not None:
             raise Exception(response["error"])
 
