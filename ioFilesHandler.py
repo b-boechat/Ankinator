@@ -29,7 +29,7 @@ def readCardsFromTSV(full_filepath):
         card_list = [row for row in card_list_obj]
     return card_list
 
-def readSentencesFromInputFile(input_file_path, default_random_wavenet):
+def readSentencesFromInputFile(input_file_path, default_recording):
 
     if not os.path.exists(input_file_path):
         print("Couldn't find input file \"{}\"".format(input_file_path))
@@ -58,11 +58,12 @@ def readSentencesFromInputFile(input_file_path, default_random_wavenet):
             continue
 
         # If none of the conditions were satisfied, line corresponds to a formatted sentence entry.
-
         if formatted_sentence:
-            if not audio_file and default_random_wavenet:
-                audio_file = "tts:w."
-             # If it's not the first sentence, append the previous entry to sentence entries.
+            if not audio_file: 
+                if default_recording == "w":
+                    audio_file = "tts:w."
+                elif default_recording == "s":
+                    audio_file = "tts:s."
             sentence_entries.append([formatted_sentence, img_url, audio_file])
             img_url = ""
             audio_file = ""
@@ -71,8 +72,11 @@ def readSentencesFromInputFile(input_file_path, default_random_wavenet):
 
     # Append last sentence entry.
     if formatted_sentence:
-        if not audio_file and default_random_wavenet:
-            audio_file = "tts:w."
+        if not audio_file:
+            if default_recording == "w":
+                audio_file = "tts:w."
+            elif default_recording == "s":
+                audio_file = "tts:s."
         sentence_entries.append([formatted_sentence, img_url, audio_file])
 
     return sentence_entries

@@ -13,7 +13,7 @@ def generateCardsFromFileWrapper(args):
                           backup_dictionary="d" not in args.nobackup,
                           input_file_path=args.input_path, output_file_path=args.output_path,
                           dictionary_file_path=args.dictionary_path,
-                          default_random_wavenet=args.default_random_wavenet,
+                          default_recording=args.default_recording,
                           add_to_anki=args.add_to_anki, anki_deck=args.anki_deck, anki_note_type = args.anki_note_type
                           )
 
@@ -61,8 +61,10 @@ parser_generate.add_argument("-p", "--nopresort", dest="presort_dictionary", act
         help="Disables flashcard dictionary presorting.")
 parser_generate.add_argument("-c", "--noclean", dest="clean_output", action="store_false",
         help="Disables output file cleaning before execution (not recommended).") # TODO: Tests needed.
-parser_generate.add_argument("-r", "--defaultrandomwavenet", dest="default_random_wavenet", action="store_true",
-        help="If audio request is not specified, defaults to a random Google TTS Wavenet voice.")
+#parser_generate.add_argument("-r", "--defaultrandomwavenet", dest="default_random_wavenet", action="store_true",
+#        help="If audio request is not specified, defaults to a random Google TTS Wavenet voice.")
+parser_generate.add_argument("-r", "--defaultrecording", dest="default_recording", choices=["w", "s", "n"], default="s",
+        help="Specifies default recording type if audio entry is not provided. (w: random Google TTS FR/FR Wavenet voice; s: random Google TTS FR/FR Studio voice; n: none)")
 parser_generate.add_argument("-a", "--addtoanki", dest="add_to_anki", action="store_true",
         help="Enables adding generated flashcards directly to Anki. Additional arguments --deck and --type can be specified.")
 parser_generate.add_argument("-e", "--deck", dest="anki_deck", metavar="ANKI_DECK", default=definitions.ANKI_DECK,

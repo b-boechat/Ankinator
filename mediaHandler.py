@@ -70,11 +70,21 @@ def processTtsRequest(repl_line, sentence, dest_filename):
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_TTS_CREDENTIALS_FULL_PATH
     client = tts.TextToSpeechClient()
 
+    print(repl_line)
+
     # Use "wa" as shorthand for "fr-fr-wavenet-a" etc.
     voice_name = re.sub(r"^w([a-e])\s*$", r"fr-fr-wavenet-\1", repl_line, count=1, flags=re.IGNORECASE)
 
-    # Use "w." as shorthand for a random fr-fr wavenet voice.
-    voice_name = re.sub(r"^w\.\s*$", r"fr-fr-wavenet-{}".format(choice(["a", "b", "c", "d", "e"])), voice_name, count=1, flags=re.IGNORECASE)
+    # Use "w" or "w." as shorthand for a random fr-fr wavenet voice.
+    voice_name = re.sub(r"^w\.?\s*$", r"fr-fr-wavenet-{}".format(choice(["a", "b", "c", "d", "e"])), voice_name, count=1, flags=re.IGNORECASE)
+
+    # Use "sa" as shorthand for "fr-fr-studio-a" etc. Only "a" and "d" are currently available.
+    voice_name = re.sub(r"^s([ad])\s*$", r"fr-fr-studio-\1", voice_name, count=1, flags=re.IGNORECASE)
+
+    # Use "s" or "s." as shorthand for a random fr-fr studio voice.
+    voice_name = re.sub(r"^s\.?\s*$", r"fr-fr-studio-{}".format(choice(["a", "d"])), voice_name, count=1, flags=re.IGNORECASE)
+
+    print(voice_name)
 
     # Specify voice and configuration parameters for Google TTS.
     voice = tts.VoiceSelectionParams(
@@ -138,7 +148,6 @@ def processMediaRequest(image_url, audio_file, sentence):
     except Exception as e:
         print(colorama.Fore.RED + "Error processing image request: \"{}\"\n{}".format(sentence, repr(e)), end="\n\n")
         image_field = ""
-
     try:
         audio_field = processAudioRequest(audio_file, filename, sentence)
     except Exception as e:
