@@ -4,7 +4,7 @@ ANKINATOR_BASE_PATH = "C:\\Users\\Bernardo\\Desktop\\Bernardo Remastered v2\\Pro
 INPUT_FULL_PATH = ANKINATOR_BASE_PATH + "files\\input.txt"
 OUTPUT_FULL_PATH = ANKINATOR_BASE_PATH + "files\\output.txt"
 STAGING_PATH = ANKINATOR_BASE_PATH + "staging\\"
-ANKI_MEDIA_PATH = "C:\\Users\\Bernardo\\AppData\\Roaming\\Anki2\\User 1\\collection.media\\"
+ANKI_MEDIA_PATH = "C:\\Users\\Bernardo\\AppData\\Roaming\\Anki2\\Bernardo\\collection.media\\"
 BACKUP_PATH = ANKINATOR_BASE_PATH + "backup\\"
 FLASHCARD_DICTIONARY_FULL_PATH = ANKINATOR_BASE_PATH + "dictionary\\dictionary.txt"
 FLASHCARD_DICTIONARY_INPUT_FULL_PATH = ANKINATOR_BASE_PATH + "dictionary\\dict_input.txt"
@@ -20,5 +20,5 @@ IMAGE_HEIGHT = 300
 MAXIMUM_BEGINNING_CHARACTERS_IMAGE_FILENAME = 8
 MEDIA_FILENAME_PREFIX = "_FR_"
 
-DONT_MOVE_MEDIA = True # Useful for debugging or testing.
+DONT_MOVE_MEDIA = False # Useful for debugging or testing.
 DONT_UPDATE_DICTIONARY = True # Useful for debugging or testing.
