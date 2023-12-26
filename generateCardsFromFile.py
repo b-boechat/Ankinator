@@ -16,7 +16,6 @@ def generateCardsFromFile(clean_output,  presort_dictionary,
         backupFile(dictionary_file_path, "dictionary")
 
     sentence_entries = readSentencesFromInputFile(input_file_path, default_recording)
-    print(sentence_entries)
 
     if clean_output:
         removeFile(output_file_path)

@@ -70,8 +70,6 @@ def processTtsRequest(repl_line, sentence, dest_filename):
     os.environ['GOOGLE_APPLICATION_CREDENTIALS'] = GOOGLE_TTS_CREDENTIALS_FULL_PATH
     client = tts.TextToSpeechClient()
 
-    print(repl_line)
-
     # Use "wa" as shorthand for "fr-fr-wavenet-a" etc.
     voice_name = re.sub(r"^w([a-e])\s*$", r"fr-fr-wavenet-\1", repl_line, count=1, flags=re.IGNORECASE)
 
@@ -83,8 +81,6 @@ def processTtsRequest(repl_line, sentence, dest_filename):
 
     # Use "s" or "s." as shorthand for a random fr-fr studio voice.
     voice_name = re.sub(r"^s\.?\s*$", r"fr-fr-studio-{}".format(choice(["a", "d"])), voice_name, count=1, flags=re.IGNORECASE)
-
-    print(voice_name)
 
     # Specify voice and configuration parameters for Google TTS.
     voice = tts.VoiceSelectionParams(
