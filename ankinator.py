@@ -4,6 +4,7 @@ from generateCardsFromFile import generateCardsFromFile
 from mergeDictionaryInput import mergeDictionaryInput
 from searchForNewWords import searchForNewWords
 from addNotesToAnkiFromTsv import addNotesToAnkiFromTsv
+from cleanStagingFolder import cleanStagingFolder
 
 def generateCardsFromFileWrapper(args):
     """ Calls generateCardsFromFile with parsed arguments.
@@ -38,6 +39,11 @@ def addNotesToAnkiFromTsvWrapper(args):
     addNotesToAnkiFromTsv(file_path=args.file_path,
                    anki_deck=args.anki_deck, anki_note_type=args.anki_note_type
                    )
+    
+def cleanStagingFolderWrapper(args):
+    """Calls cleanStagingFolder (no args needed).
+    """
+    cleanStagingFolder()
 
 
 
@@ -112,6 +118,10 @@ parser_add.add_argument("-e", "--deck", dest="anki_deck", metavar="ANKI_DECK", d
 parser_add.add_argument("-t", "--type", dest="anki_note_type", metavar="ANKI_NOTE_TYPE", default=definitions.ANKI_NOTE_TYPE,
         help="Anki note type name. If not specified, defaults to ANKI_NOTE_TYPE in definitions.py (currently \"%(default)s\").")
 parser_add.set_defaults(func=addNotesToAnkiFromTsvWrapper)
+
+# Create subparser for "clean" (calls cleanStagingFolder)
+parser_clean = subparsers.add_parser("clean", aliases=["c"], help="Clean staging folder (path specified by STAGING_PATH in definitions.py)")
+parser_clean.set_defaults(func=cleanStagingFolderWrapper)
 
 
 # Parse arguments and execute the appropriate function, or show usage message if program was called without arguments.
